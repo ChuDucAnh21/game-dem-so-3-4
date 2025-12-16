@@ -8,6 +8,7 @@ import { initRotateOrientation } from '../rotateOrientation';
 import { playVoiceLocked } from '../rotateOrientation';
 
 export class QuantityScene extends Phaser.Scene {
+    private childSide: 'left' | 'right' = 'left';
     private audioReady = false; // ✅ thêm dòng này
     private forcePrompt = false;
     init(data: any) {
@@ -165,6 +166,71 @@ export class QuantityScene extends Phaser.Scene {
         }
     }
 
+    //Bé bay
+    private flyChildAcross(isCorrect: boolean) {
+  if (!this.avata_child) return;
+
+  // Nếu muốn: chỉ bay khi đúng
+  if (!isCorrect) return;
+
+  // Dừng tween lắc hiện tại để tránh xung đột
+  this.tweens.killTweensOf(this.avata_child);
+
+  const fromLeft = this.childSide === 'left';
+
+  // Vị trí đích (đừng sát mép quá)
+  const targetX = fromLeft ? this.pctX(0.88) - this.getW() * 0.12 : this.getW() * 0.02;
+  const targetY = this.pctY(0.67);
+
+  // Hướng mặt (nếu sprite bé nhìn sang phải mặc định thì flip theo chiều bay)
+  // Nếu bị ngược, bạn chỉ cần đảo true/false
+  this.avata_child.setFlipX(!fromLeft);
+
+  // Tween bay ngang mượt
+  this.tweens.add({
+    targets: this.avata_child,
+    x: targetX,
+    y: targetY,
+    duration: 1200,
+    ease: 'Sine.inOut',
+    onComplete: () => {
+      this.childSide = fromLeft ? 'right' : 'left';
+
+      // Sau khi bay xong, cho “thở” lại nhẹ nhàng
+      this.tweens.add({
+        targets: this.avata_child,
+        y: this.avata_child.y - 10,
+        duration: 850,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.inOut',
+      });
+    },
+  });
+
+  // Nhấp nhô khi bay (tạo cảm giác lượn)
+  this.tweens.add({
+    targets: this.avata_child,
+    y: this.avata_child.y - 18,
+    duration: 350,
+    yoyo: true,
+    repeat: 3,
+    ease: 'Sine.inOut',
+  });
+
+  // Xoay nhẹ (tùy thích, rất nhẹ thôi)
+  this.tweens.add({
+    targets: this.avata_child,
+    angle: fromLeft ? 3 : -3,
+    duration: 250,
+    yoyo: true,
+    repeat: 5,
+    ease: 'Sine.inOut',
+    onComplete: () => this.avata_child.setAngle(0),
+  });
+}
+
+
     // ========= Preload =========
 
     preload() {
@@ -213,12 +279,14 @@ export class QuantityScene extends Phaser.Scene {
         // Bé
         this.avata_child = this.add
             .image(this.pctX(0), this.pctY(0.75), 'avata_child')
-            .setOrigin(0, 1);
+            .setOrigin(0, 1)
+            .setDepth(5000);
         this.avata_child.setScale(0.5);
         this.tweens.add({
             targets: this.avata_child,
             y: this.avata_child.y - 10,
-            duration: 800,
+            duration: 800, 
+            
             yoyo: true,
             repeat: -1,
             ease: 'Sine.inOut',
@@ -1034,6 +1102,8 @@ if (this.forcePrompt && this.audioReady) {
         const isCorrect = filledCount === level.objectCount;
 
         if (isCorrect) {
+
+            this.flyChildAcross(true); // ✅ bé bay khi đúng
             this.score += 1;
             // ✅ Đổi nét tô của các vòng đúng sang xanh lá
             this.highlightCorrectCirclesGreen();
