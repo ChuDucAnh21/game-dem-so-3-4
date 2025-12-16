@@ -14,13 +14,13 @@ export class QuantityScene extends Phaser.Scene {
     init(data: any) {
         if (data?.audio) this.audio = data.audio;
         this.audioReady = !!data?.audioReady; // ✅ thêm dòng này
-         this.forcePrompt = !!data?.forcePrompt;
+        this.forcePrompt = !!data?.forcePrompt;
     }
     private audio!: HowlerAudioManager;
     // brush cho tô
     private brushRadius = 24; // to hơn cho dễ tô tròn
 
-    private brushColor = 0xFFD93D; // xanh dương cho bé
+    private brushColor = 0xFF4D8D; // xanh dương cho bé
     private fillThreshold = 0.9; // 60% là đạt (dễ thở hơn)
     private paintGridSize = 10; // lưới 16x16 điểm mẫu cho mỗi vòng
 
@@ -41,7 +41,7 @@ export class QuantityScene extends Phaser.Scene {
     };
 
     // UI
-   
+
     private doneButton!: Phaser.GameObjects.Container;
     private titleBanner!: Phaser.GameObjects.Image;
     // ✅ icon check đúng/sai
@@ -168,68 +168,71 @@ export class QuantityScene extends Phaser.Scene {
 
     //Bé bay
     private flyChildAcross(isCorrect: boolean) {
-  if (!this.avata_child) return;
+        if (!this.avata_child) return;
 
-  // Nếu muốn: chỉ bay khi đúng
-  if (!isCorrect) return;
+        // Nếu muốn: chỉ bay khi đúng
+        if (!isCorrect) return;
 
-  // Dừng tween lắc hiện tại để tránh xung đột
-  this.tweens.killTweensOf(this.avata_child);
+        // Dừng tween lắc hiện tại để tránh xung đột
+        this.tweens.killTweensOf(this.avata_child);
 
-  const fromLeft = this.childSide === 'left';
+        const fromLeft = this.childSide === 'left';
 
-  // Vị trí đích (đừng sát mép quá)
-  const targetX = fromLeft ? this.pctX(0.88) - this.getW() * 0.12 : this.getW() * 0.02;
-  const targetY = this.pctY(0.67);
+        // Vị trí đích (đừng sát mép quá)
+        const targetX = fromLeft
+            ? this.pctX(0.89) - this.getW() * 0.12
+            : this.getW() * 0.02;
+        const targetY = this.pctY(0.63);
 
-  // Hướng mặt (nếu sprite bé nhìn sang phải mặc định thì flip theo chiều bay)
-  // Nếu bị ngược, bạn chỉ cần đảo true/false
-  this.avata_child.setFlipX(!fromLeft);
+        // Hướng mặt (nếu sprite bé nhìn sang phải mặc định thì flip theo chiều bay)
+        // Nếu bị ngược, bạn chỉ cần đảo true/false
+        //   const goingRight = targetX > this.avata_child.x;
 
-  // Tween bay ngang mượt
-  this.tweens.add({
-    targets: this.avata_child,
-    x: targetX,
-    y: targetY,
-    duration: 1200,
-    ease: 'Sine.inOut',
-    onComplete: () => {
-      this.childSide = fromLeft ? 'right' : 'left';
+        // // Nếu ảnh avata_child mặc định NHÌN SANG PHẢI:
+        // this.avata_child.setFlipX(!goingRight);
 
-      // Sau khi bay xong, cho “thở” lại nhẹ nhàng
-      this.tweens.add({
-        targets: this.avata_child,
-        y: this.avata_child.y - 10,
-        duration: 850,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.inOut',
-      });
-    },
-  });
+        // Tween bay ngang mượt
+        this.tweens.add({
+            targets: this.avata_child,
+            x: targetX,
+            y: targetY,
+            duration: 1200,
+            ease: 'Sine.inOut',
+            onComplete: () => {
+                this.childSide = fromLeft ? 'right' : 'left';
+                // Sau khi bay xong, cho “thở” lại nhẹ nhàng
+                this.tweens.add({
+                    targets: this.avata_child,
+                    y: this.avata_child.y - 10,
+                    duration: 850,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.inOut',
+                });
+            },
+        });
 
-  // Nhấp nhô khi bay (tạo cảm giác lượn)
-  this.tweens.add({
-    targets: this.avata_child,
-    y: this.avata_child.y - 18,
-    duration: 350,
-    yoyo: true,
-    repeat: 3,
-    ease: 'Sine.inOut',
-  });
+        // Nhấp nhô khi bay (tạo cảm giác lượn)
+        this.tweens.add({
+            targets: this.avata_child,
+            y: this.avata_child.y - 10,
+            duration: 850,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.inOut',
+        });
 
-  // Xoay nhẹ (tùy thích, rất nhẹ thôi)
-  this.tweens.add({
-    targets: this.avata_child,
-    angle: fromLeft ? 3 : -3,
-    duration: 250,
-    yoyo: true,
-    repeat: 5,
-    ease: 'Sine.inOut',
-    onComplete: () => this.avata_child.setAngle(0),
-  });
-}
-
+        // Xoay nhẹ (tùy thích, rất nhẹ thôi)
+        //   this.tweens.add({
+        //     targets: this.avata_child,
+        //     angle: fromLeft ? 3 : -3,
+        //     duration: 350,
+        //     yoyo: true,
+        //     repeat: 5,
+        //     ease: 'Sine.inOut',
+        //     onComplete: () => this.avata_child.setAngle(0),
+        //   });
+    }
 
     // ========= Preload =========
 
@@ -254,7 +257,6 @@ export class QuantityScene extends Phaser.Scene {
         if (!this.audio) {
             this.audio = new HowlerAudioManager(QUANTITY_SOUNDS);
         }
-
 
         // cho nút reload ngoài DOM bắn vào
         (window as any).quantityScene = this;
@@ -285,8 +287,8 @@ export class QuantityScene extends Phaser.Scene {
         this.tweens.add({
             targets: this.avata_child,
             y: this.avata_child.y - 10,
-            duration: 800, 
-            
+            duration: 800,
+
             yoyo: true,
             repeat: -1,
             ease: 'Sine.inOut',
@@ -298,7 +300,7 @@ export class QuantityScene extends Phaser.Scene {
             | HTMLImageElement
             | HTMLCanvasElement;
 
-        const titleTargetWidth = this.getW() * 0.80; // chiếm ~85% chiều ngang
+        const titleTargetWidth = this.getW() * 0.8; // chiếm ~85% chiều ngang
         const titleScale = titleTargetWidth / titleTex.width;
         const scaleYFactor = 0.75; // <-- giảm chiều cao (0.6~0.85 tuỳ thích)
 
@@ -470,13 +472,12 @@ export class QuantityScene extends Phaser.Scene {
 
         showGameButtons();
         // ✅ nếu được yêu cầu force prompt (reset) thì phát lại prompt level 0
-if (this.forcePrompt && this.audioReady) {
-  this.time.delayedCall(0, () => {
-    const lvl = this.levels[this.currentLevelIndex];
-    this.playPromptForLevel(lvl);
-  });
-}
-
+        if (this.forcePrompt && this.audioReady) {
+            this.time.delayedCall(0, () => {
+                const lvl = this.levels[this.currentLevelIndex];
+                this.playPromptForLevel(lvl);
+            });
+        }
     }
 
     private updateObjectsPanel() {
@@ -549,7 +550,6 @@ if (this.forcePrompt && this.audioReady) {
     private playPromptForLevel(level: CountLevel) {
         if (!level.promptKey) return;
         this.audio.playPrompt(level.promptKey);
-       
     }
 
     // ========= Show level =========
@@ -993,7 +993,6 @@ if (this.forcePrompt && this.audioReady) {
         return ratio;
     }
 
-    
     private animateLevelIntro() {
         const allTargets: Phaser.GameObjects.Image[] = [
             ...this.objectSprites,
@@ -1102,7 +1101,6 @@ if (this.forcePrompt && this.audioReady) {
         const isCorrect = filledCount === level.objectCount;
 
         if (isCorrect) {
-
             this.flyChildAcross(true); // ✅ bé bay khi đúng
             this.score += 1;
             // ✅ Đổi nét tô của các vòng đúng sang xanh lá
