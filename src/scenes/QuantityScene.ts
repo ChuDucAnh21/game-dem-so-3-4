@@ -8,7 +8,9 @@ import { initRotateOrientation } from '../rotateOrientation';
 import { playVoiceLocked } from '../rotateOrientation';
 
 export class QuantityScene extends Phaser.Scene {
+    // ----------------------------bé bay-------------------------------------
     private childSide: 'left' | 'right' = 'left';
+    // -----------------------------------------------------------------
     private audioReady = false; // ✅ thêm dòng này
     private forcePrompt = false;
     init(data: any) {
@@ -166,6 +168,7 @@ export class QuantityScene extends Phaser.Scene {
         }
     }
 
+    // ------------------------------------------------------------------------------------------------------------
     //Bé bay
     private flyChildAcross(isCorrect: boolean) {
         if (!this.avata_child) return;
@@ -233,6 +236,8 @@ export class QuantityScene extends Phaser.Scene {
         //     onComplete: () => this.avata_child.setAngle(0),
         //   });
     }
+    // ------------------------------------------------------------------------------------------------------------
+
 
     // ========= Preload =========
 
